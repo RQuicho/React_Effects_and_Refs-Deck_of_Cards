@@ -5,6 +5,7 @@ const Card = () => {
   const [cardData, setCardData] = useState(null);
   const [deckId, setDeckId] = useState(null);
   const [remainingCards, setRemainingCards] = useState(null);
+  const [isShuffled, setIsShuffled] = useState(false);
   const drawFirstCard = 'https://deckofcardsapi.com/api/deck/new/draw/?count=1';
 
   useEffect(function loadDataWhenMounted() {
@@ -27,23 +28,36 @@ const Card = () => {
 
   const drawCardFromSameDeck = async () => {
     if (deckId) {
-      const res = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`);
-      setCardData(res.data);
-      setRemainingCards(res.data.remaining);
+      try {
+        const res = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`);
+        setIsShuffled(false);
+        setCardData(res.data);
+        setRemainingCards(res.data.remaining);
+      } catch(err) {
+        console.log(err);
+      }
+    }
+  }
+
+  const shuffleSameDeck = async () => {
+    if (deckId) {
+      try {
+        const res = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/shuffle/`);
+        setRemainingCards(53);
+        setIsShuffled(res.data.success);
+      } catch(err) {
+        console.log(err);
+      }
     }
   }
 
   return (
     <div>
-      {/* {cardData ? <h1>Deck Id: {cardData.deck_id}</h1> : <h1>Loading...</h1>} */}
-      {/* {cardData ? <h1>Value: {cardData.cards[0].value}</h1> : <h1>Loading...</h1>}
-      {cardData ? <h1>Suit: {cardData.cards[0].suit}</h1> : <h1>Loading...</h1>} */}
-      {/* {cardData ? <h1>Cards Remaining: {cardData.remaining}</h1> : <h1>Loading...</h1>} */}
-
       {remainingCards === 0 ? alert("Error: no cards remaining!") : null}
 
-      {cardData ? <img src= {cardData.cards[0].image} alt='Card'/> : <h1>Loading...</h1>}
+      {cardData && !isShuffled ? <img src= {cardData.cards[0].image} alt='Card'/> : <h1>Draw a Card</h1>}
       <button onClick={drawCardFromSameDeck}>Draw</button>
+      <button onClick={shuffleSameDeck}>Shuffle</button>
 
     </div>
   )
