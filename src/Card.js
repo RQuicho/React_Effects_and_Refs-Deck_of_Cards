@@ -4,6 +4,7 @@ import axios from 'axios';
 const Card = () => {
   const [cardData, setCardData] = useState(null);
   const [deckId, setDeckId] = useState(null);
+  const [remainingCards, setRemainingCards] = useState(null);
   const drawFirstCard = 'https://deckofcardsapi.com/api/deck/new/draw/?count=1';
 
   useEffect(function loadDataWhenMounted() {
@@ -12,6 +13,7 @@ const Card = () => {
         const res = await axios.get(drawFirstCard);
         setCardData(res.data);
         setDeckId(res.data.deck_id);
+        setRemainingCards(res.data.remaining);
       }
       loadData();
     } catch (err) {
@@ -21,11 +23,13 @@ const Card = () => {
 
   console.log('cardData...', cardData);
   console.log('deckId...', deckId);
+  console.log('remainingCards...', remainingCards);
 
   const drawCardFromSameDeck = async () => {
     if (deckId) {
       const res = await axios.get(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`);
       setCardData(res.data);
+      setRemainingCards(res.data.remaining);
     }
   }
 
@@ -34,7 +38,9 @@ const Card = () => {
       {/* {cardData ? <h1>Deck Id: {cardData.deck_id}</h1> : <h1>Loading...</h1>} */}
       {/* {cardData ? <h1>Value: {cardData.cards[0].value}</h1> : <h1>Loading...</h1>}
       {cardData ? <h1>Suit: {cardData.cards[0].suit}</h1> : <h1>Loading...</h1>} */}
-      {cardData ? <h1>Cards Remaining: {cardData.remaining}</h1> : <h1>Loading...</h1>}
+      {/* {cardData ? <h1>Cards Remaining: {cardData.remaining}</h1> : <h1>Loading...</h1>} */}
+
+      {remainingCards === 0 ? alert("Error: no cards remaining!") : null}
 
       {cardData ? <img src= {cardData.cards[0].image} alt='Card'/> : <h1>Loading...</h1>}
       <button onClick={drawCardFromSameDeck}>Draw</button>
